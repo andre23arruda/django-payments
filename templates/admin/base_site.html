@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block bodyclass_script %}
+    <script src="{% static 'js/dark-mode-init.js' %}"></script>
+{% endblock %}
+
+{% block darkmode_element %}
+    <script src="{% static 'js/dark-mode-element.js' %}"></script>
+{% endblock %}
+
+{% block extrajs %}
+    <script src="{% static 'js/dark-mode.js' %}"></script>
+{% endblock %}

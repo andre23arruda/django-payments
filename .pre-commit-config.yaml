@@ -1,0 +1,20 @@
+repos:
+  # Ruff: lint + formatação (substitui flake8, isort, black)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.10
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # Commitlint: validação da mensagem de commit (Conventional Commits)
+  - repo: local
+    hooks:
+      - id: commitlint
+        name: commitlint
+        language: node
+        entry: npx --no -- commitlint --edit
+        stages: [commit-msg]
+        additional_dependencies:
+          - '@commitlint/cli@19'
+          - '@commitlint/config-conventional@19'

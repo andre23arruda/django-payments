@@ -1,0 +1,469 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static jazzmin dashboard_tags %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block content_title %} {% trans 'Dashboard' %} {% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/admin-dashboard.css' %}">
+{% endblock %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
+    <li class="breadcrumb-item">{% trans 'Dashboard' %}</li>
+</ol>
+{% endblock %}
+
+
+{% block content %}
+{% get_admin_dashboard_metrics as metrics %}
+
+{% if metrics.has_any_perm %}
+<!-- Dashboard Metrics & Charts -->
+<div class="col-12 dashboard-hero mb-0">
+    <!-- Title & Quick Actions -->
+    <div class="dashboard-title-bar">
+        <div>
+            <h2>
+                <i class="fas fa-wallet text-primary mr-2"></i>
+                {% trans 'Fluxo de Caixa' %}
+            </h2>
+            <div class="dashboard-subtitle">
+                Visão consolidada de <strong>Entradas</strong>, <strong>Saídas</strong> e <strong>Saldo Líquido</strong>
+                <span id="dashboard-period-badge" class="period-indicator-badge ml-1">Período: Geral</span>
+            </div>
+        </div>
+        <div class="d-flex align-items-center flex-wrap" style="gap: 0.5rem;">
+            <a href="{% url 'admin:payments_inputoutput_changelist' %}"
+                class="btn btn-sm btn-outline-secondary shadow-sm" style="border-radius: 8px; font-weight: 600;">
+                <i class="fas fa-list mr-1"></i> Ver Lançamentos
+            </a>
+            <a href="{% url 'admin:payments_inputoutput_add' %}" class="btn btn-sm btn-success text-white shadow-sm"
+                style="border-radius: 8px; font-weight: 600;">
+                <i class="fas fa-plus mr-1"></i> Nova Entrada / Saída
+            </a>
+        </div>
+    </div>
+
+    <!-- 4 KPI Summary Cards -->
+    <div class="row kpi-row">
+        <!-- Card 1: Total de Entradas -->
+        <div class="col-xl-3 col-md-6 col-sm-6 mb-3">
+            <div class="kpi-card kpi-card-entrada">
+                <div class="kpi-header">
+                    <span class="kpi-label" id="kpi-entradas-label">Total de Entradas</span>
+                    <div class="kpi-icon-badge emerald">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                </div>
+                <div class="kpi-value text-emerald" id="kpi-entradas-value">
+                    {{ metrics.summary.total_entradas_fmt }}
+                </div>
+                <div class="kpi-footer" id="kpi-entradas-footer">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <span>
+                        {{ metrics.summary.qtd_entradas }} entrada(s) •
+                        Mês: {{ metrics.summary.mes_entradas_fmt }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: Total de Saídas -->
+        <div class="col-xl-3 col-md-6 col-sm-6 mb-3">
+            <div class="kpi-card kpi-card-saida">
+                <div class="kpi-header">
+                    <span class="kpi-label" id="kpi-saidas-label">Total de Saídas</span>
+                    <div class="kpi-icon-badge rose">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                </div>
+                <div class="kpi-value text-rose" id="kpi-saidas-value">
+                    {{ metrics.summary.total_saidas_fmt }}
+                </div>
+                <div class="kpi-footer" id="kpi-saidas-footer">
+                    <i class="fas fa-arrow-circle-down text-danger"></i>
+                    <span>{{ metrics.summary.qtd_saidas }} saída(s) • Mês: {{ metrics.summary.mes_saidas_fmt }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: Saldo Líquido -->
+        <div class="col-xl-3 col-md-6 col-sm-6 mb-3">
+            <div class="kpi-card kpi-card-saldo">
+                <div class="kpi-header">
+                    <span class="kpi-label" id="kpi-saldo-label">Saldo em Caixa</span>
+                    <div class="kpi-icon-badge blue">
+                        <i class="fas fa-scale-balanced fas fa-balance-scale"></i>
+                    </div>
+                </div>
+                <div class="kpi-value {% if metrics.summary.saldo_positivo %}text-emerald{% else %}text-rose{% endif %}"
+                    id="kpi-saldo-value">
+                    {{ metrics.summary.saldo_liquido_fmt }}
+                </div>
+                <div class="kpi-footer" id="kpi-saldo-footer">
+                    <span class="pulse-dot {% if not metrics.summary.saldo_positivo %}pulse-dot-danger{% endif %}"
+                        id="kpi-saldo-dot"></span>
+                    <span id="kpi-saldo-status"
+                        class="{% if metrics.summary.saldo_positivo %}text-success{% else %}text-danger{% endif %} font-weight-bold">
+                        {% if metrics.summary.saldo_positivo %}Saldo Positivo{% else %}Saldo Negativo{% endif %}
+                    </span>
+                    <span class="text-muted ml-1" id="kpi-saldo-margin">({{ metrics.summary.margem_liquida }}%
+                        margem)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4: Balanço do Mês Atual -->
+        <div class="col-xl-3 col-md-6 col-sm-6 mb-3">
+            <div class="kpi-card kpi-card-mes">
+                <div class="kpi-header">
+                    <span class="kpi-label">Balanço ({{ metrics.summary.mes_nome }})</span>
+                    <div class="kpi-icon-badge orange">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                </div>
+                <div
+                    class="kpi-value {% if metrics.summary.mes_saldo_positivo %}text-emerald{% else %}text-rose{% endif %}">
+                    {{ metrics.summary.mes_saldo_fmt }}
+                </div>
+                <div class="kpi-footer">
+                    <span class="text-muted">
+                        {{ metrics.summary.mes_lancamentos }} mov. no mês ({{ metrics.summary.total_lancamentos }}
+                        total)
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row charts-row">
+        <!-- Time Series Cash Flow Chart (Main) -->
+        <div class="col-xl-8 col-lg-7 col-md-12 mb-3">
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h4 class="chart-title">
+                        <i class="fas fa-chart-bar text-primary"></i>
+                        Evolução: Entradas vs Saídas
+                    </h4>
+                    <div class="chart-controls">
+                        <!-- Toggle Granularity: Mensal / Diário -->
+                        <div class="btn-pill-group">
+                            <button type="button" class="btn-pill view-pill active" data-view="monthly">Mensal</button>
+                            <button type="button" class="btn-pill view-pill" data-view="daily">Diário</button>
+                        </div>
+                        <!-- Toggle Chart Type: Barras / Linhas -->
+                        <div class="btn-pill-group">
+                            <button type="button" class="btn-pill type-pill active" data-chart-type="bar">
+                                <i class="fas fa-chart-bar mr-1"></i>Barras
+                            </button>
+                            <button type="button" class="btn-pill type-pill" data-chart-type="line">
+                                <i class="fas fa-chart-line mr-1"></i>Linhas
+                            </button>
+                        </div>
+                        <!-- Filter Period (Monthly) -->
+                        <div class="btn-pill-group" id="monthly-period-group">
+                            <button type="button" class="btn-pill period-pill" data-period="6">6 Meses</button>
+                            <button type="button" class="btn-pill period-pill" data-period="12">12 Meses</button>
+                            <button type="button" class="btn-pill period-pill active" data-period="all">Todos</button>
+                        </div>
+                        <!-- Filter Period (Daily - hidden by default) -->
+                        <div class="btn-pill-group d-none" id="daily-period-group">
+                            <button type="button" class="btn-pill daily-period-pill" data-daily-period="7">7
+                                Dias</button>
+                            <button type="button" class="btn-pill daily-period-pill active" data-daily-period="30">30
+                                Dias</button>
+                            <button type="button" class="btn-pill daily-period-pill" data-daily-period="90">90
+                                Dias</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-canvas-container">
+                    <canvas id="dashboardTimelineChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Distribution Donut Chart -->
+        <div class="col-xl-4 col-lg-5 col-md-12 mb-3">
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h4 class="chart-title">
+                        <i class="fas fa-chart-pie text-primary"></i>
+                        Proporção
+                    </h4>
+                    <div class="chart-controls">
+                        <div class="btn-pill-group">
+                            <button type="button" class="btn-pill donut-pill active" data-donut-metric="values">Valores
+                                (R$)</button>
+                            <button type="button" class="btn-pill donut-pill" data-donut-metric="counts">Qtd</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-canvas-container" style="min-height: 200px;">
+                    <canvas id="dashboardDonutChart"></canvas>
+                </div>
+                <ul class="donut-stats-list">
+                    <li class="donut-stat-item">
+                        <span class="donut-stat-label">
+                            <span class="donut-dot" style="background-color: #10b981;"></span>
+                            Entradas ({{ metrics.summary.perc_entradas }}%)
+                        </span>
+                        <span class="donut-stat-value text-emerald" id="donut-stat-entradas">
+                            {{ metrics.summary.total_entradas_fmt }}
+                        </span>
+                    </li>
+                    <li class="donut-stat-item">
+                        <span class="donut-stat-label">
+                            <span class="donut-dot" style="background-color: #ef4444;"></span>
+                            Saídas ({{metrics.summary.perc_saidas }}%)
+                        </span>
+                        <span class="donut-stat-value text-rose" id="donut-stat-saidas">
+                            {{ metrics.summary.total_saidas_fmt }}
+                        </span>
+                    </li>
+                    <li class="donut-stat-item">
+                        <span class="donut-stat-label">
+                            <span class="donut-dot" style="background-color: #3b82f6;"></span>Ticket Médio (Entrada)
+                        </span>
+                        <span class="donut-stat-value">{{ metrics.summary.ticket_medio_entrada_fmt }}</span>
+                    </li>
+                    <li class="donut-stat-item">
+                        <span class="donut-stat-label">
+                            <span class="donut-dot" style="background-color: #f97316;"></span>Ticket Médio (Saída)
+                        </span>
+                        <span class="donut-stat-value">{{ metrics.summary.ticket_medio_saida_fmt }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Cash Flow Transactions -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="chart-card recent-transactions-card">
+                <div class="chart-card-header mb-2">
+                    <h4 class="chart-title">
+                        <i class="fas fa-exchange-alt text-info"></i>
+                        Últimas Movimentações
+                    </h4>
+                    <a href="{% url 'admin:payments_inputoutput_changelist' %}" class="btn btn-xs btn-outline-secondary"
+                        style="border-radius: 6px; font-weight: 600;">
+                        Ver todas ({{ metrics.summary.total_lancamentos }}) <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+                {% if metrics.recent_records %}
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0 cashflow-recent-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Tipo</th>
+                                <th>Observação</th>
+                                <th class="text-right">Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in metrics.recent_records %}
+                            <tr>
+                                <td class="align-middle font-weight-bold">
+                                    <a href="{% url 'admin:payments_inputoutput_change' item.id %}">{{ item.date }}</a>
+                                </td>
+                                <td class="align-middle">
+                                    {% if item.is_entrada %}
+                                    <span class="cashflow-badge badge-entrada">
+                                        <i class="fas fa-arrow-up mr-1"></i>Entrada
+                                    </span>
+                                    {% else %}
+                                    <span class="cashflow-badge badge-saida">
+                                        <i class="fas fa-arrow-down mr-1"></i>Saída
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="align-middle text-muted" title="{{ item.obs_full }}">
+                                    {{ item.obs }}
+                                </td>
+                                <td
+                                    class="align-middle text-right font-weight-bold {% if item.is_entrada %}text-emerald{% else %}text-rose{% endif %}">
+                                    {% if item.is_entrada %}+{% else %}-{% endif %} {{ item.value_formatted }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    <i class="fas fa-receipt fa-2x mb-2 d-block opacity-50"></i>
+                    Nenhuma movimentação registrada até o momento.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden JSON Payload for Chart.js -->
+<script id="dashboard-data" type="application/json">
+        {{ metrics.chart_data_json|safe }}
+    </script>
+{% endif %}
+
+<!-- Standard Admin Apps & Models List -->
+{% get_side_menu using="app_list" as dashboard_list %}
+{% if dashboard_list %}
+{% widthratio dashboard_list|length 2 1 as middle %}
+{% endif %}
+
+{% if user.is_superuser %}
+<div class="col-12">
+    <hr>
+    <h4 class="mt-4 mb-3 font-weight-bold">
+        <i class="fas fa-layer-group mr-1"></i> {% trans 'Módulos Administrativos' %}
+    </h4>
+
+    <div class="row">
+        <div class="col-md-6 col-sm-12">
+            {% for app in dashboard_list %}
+            <div class="card shadow-sm border-0 mb-3" style="border-radius: 10px;">
+                <div class="card-header">
+                    <h5 class="m-0 font-weight-bold">{{ app.name }}</h5>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-hover mb-0">
+                        <tbody>
+                            {% for model in app.models %}
+                            <tr>
+                                <td class="align-middle pl-3">
+                                    {% if model.url %}
+                                    <a href="{{ model.url }}" class="font-weight-500">
+                                        {{ model.name}}
+                                    </a>
+                                    {% else %}
+                                    {{ model.name }}
+                                    {% endif %}
+                                </td>
+                                <td class="text-right pr-3">
+                                    <div class="btn-group">
+                                        {% if model.add_url %}
+                                        <a href="{{ model.add_url }}"
+                                            class="btn btn-xs {{ jazzmin_ui.button_classes.success }} addlink">{% trans
+                                            'Add' %}</a>
+                                        {% endif %}
+                                        {% if model.url %}
+                                        {% if model.view_only %}
+                                        <a href="{{ model.url }}"
+                                            class="btn btn-xs {{ jazzmin_ui.button_classes.info }} viewlink">{% trans
+                                            'View' %}</a>
+                                        {% else %}
+                                        <a href="{{ model.url }}"
+                                            class="btn btn-xs {{ jazzmin_ui.button_classes.info }} changelink">
+                                            {% if model.custom %}
+                                            {% trans 'Go' %}
+                                            {% else %}
+                                            {% trans 'Change' %}
+                                            {% endif %}
+                                        </a>
+                                        {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {% if forloop.counter == middle|add:"0" %}
+        </div>
+        <div class="col-md-6 col-sm-12">
+            {% endif %}
+
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="col-12 mt-4">
+    <div id="content-related">
+        <div class="module" id="recent-actions-module">
+            <h4 class="mb-3 font-weight-bold">
+                <i class="fas fa-history text-muted mr-1"></i> {% trans 'Recent actions' %}
+            </h4>
+            {% load log %}
+            {% get_admin_log 6 as admin_log for_user user %}
+            {% if not admin_log %}
+            <p>{% trans 'None available' %}</p>
+            {% else %}
+            <div class="timeline">
+                {% for entry in admin_log %}
+                <div>
+                    {% if entry.is_change %}
+                    <i class="fas fa-edit bg-gray text-xs"></i>
+                    {% elif entry.is_deletion %}
+                    <i class="fas fa-trash bg-danger text-xs"></i>
+                    {% elif entry.is_addition %}
+                    <i class="fas fa-plus-circle bg-success text-xs"></i>
+                    {% endif %}
+
+                    <div class="timeline-item shadow-sm" style="border-radius: 8px;">
+                        <span class="time"><i class="fas fa-clock"></i>
+                            {% blocktrans with timesince=entry.action_time|timesince %}
+                            {{ timesince }} ago
+                            {% endblocktrans %}
+                        </span>
+                        <h3 class="timeline-header no-border">
+                            {% if entry.is_deletion or not entry.get_admin_url %}
+                            {{ entry.object_repr }}
+                            {% else %}
+                            <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                            {% endif %}
+
+                            {% if entry.model %}
+                            <span class="mini quiet">
+                                {% filter capfirst %}
+                                {{ entry.model }}
+                                {% endfilter %}
+                            </span>
+                            {% endif %}
+                        </h3>
+                        {% if not entry.is_deletion %}
+                        <div class="timeline-body">
+                            {% if entry.is_addition %}
+                            {{ entry }}
+                            {% else %}
+                            <ul style="list-style: none; padding: 0;">
+                                {% action_message_to_list entry as action_message_list %}
+                                {% for action_message in action_message_list %}
+                                <li>{{ action_message.msg|style_bold_first_word }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                <div>
+                    <i class="fa fa-clock bg-gray"></i>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extrajs %}
+{{ block.super }}
+<script src="{% static 'js/chart.min.js' %}"></script>
+<script src="{% static 'js/admin-dashboard.js' %}"></script>
+{% endblock %}
