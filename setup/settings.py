@@ -13,7 +13,6 @@ load_dotenv(BASE_DIR / '.env', verbose=True)
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = json.loads(os.getenv('DEBUG', 'false'))
-TESTING = 'test' in sys.argv
 ALLOWED_HOSTS = json.loads(os.getenv('ALLOWED_HOSTS', '["*"]'))
 
 # Application definition
@@ -31,7 +30,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
 	'django.middleware.security.SecurityMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
-	'corsheaders.middleware.CorsMiddleware',
 	'django.middleware.common.CommonMiddleware',
 	'django.middleware.csrf.CsrfViewMiddleware',
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -89,57 +87,10 @@ STATICFILES_DIRS = [BASE_DIR / 'setup/static']
 STATIC_ROOT = BASE_DIR / 'static'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-if DEBUG:
-	STATIC_URL = '/static/'
-else:
-	STATIC_URL = os.getenv('APP_LINK', '') + '/admin_assets/'
+STATIC_URL = '/static/'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # locale
 LOCALE_PATHS = [BASE_DIR / 'locale']
-
-# CORS
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_HEADERS = [
-	'content-type',
-	'x-csrftoken',
-	'authorization',
-]
-CORS_ALLOWED_ORIGINS = json.loads(os.getenv('CORS_ALLOWED_ORIGINS', '[]'))
-CORS_EXPOSE_HEADERS = ['x-csrftoken']
-
-# CSRF
-CSRF_TRUSTED_ORIGINS = json.loads(os.getenv('CORS_ALLOWED_ORIGINS', '[]'))
-CSRF_COOKIE_NAME = 'podio-digital-csrftoken'
-CSRF_COOKIE_HTTPONLY = False
-SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_AGE = 172800  # 2 dias
-if DEBUG:
-	CSRF_COOKIE_SAMESITE = 'Lax'
-	CSRF_COOKIE_SECURE = False
-	SESSION_COOKIE_SAMESITE = 'Lax'
-	SESSION_COOKIE_SECURE = False
-else:
-	CSRF_COOKIE_HTTPONLY = False
-	CSRF_COOKIE_PARTITIONED = True
-	CSRF_COOKIE_SAMESITE = 'Lax'
-	CSRF_COOKIE_SECURE = True
-
-	SESSION_COOKIE_PARTITIONED = True
-	SESSION_COOKIE_SAMESITE = 'Lax'
-	SESSION_COOKIE_SECURE = True
-	SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-	USE_X_FORWARDED_HOST = True
-
-# EMAIL
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-
-# Security / Limits
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000  # Suportar muitos jogos inlines (ex: 350+ jogos)

@@ -1,13 +1,10 @@
 import datetime
-import locale
 
 from django.conf.locale.en import formats as en
 from django.conf.locale.pt_BR import formats as pt_BR
 from django.contrib import admin
-from django.db import models
-from .models import InputOutput
 
-# locale.setlocale(locale.LC_MONETARY, 'pt_BR.UTF-8')
+from .models import InputOutput
 
 pt_BR.DATE_FORMAT = 'd/m/Y'
 pt_BR.DATETIME_FORMAT = 'H:i:s - d/m/Y'

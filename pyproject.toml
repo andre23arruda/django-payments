@@ -1,0 +1,58 @@
+[project]
+name = "django-payments"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "asgiref==3.8.1",
+    "Django==5.1.3",
+    "django-jazzmin==3.0.1",
+    "psycopg2-binary==2.9.12",
+    "python-dotenv==1.0.1",
+    "sqlparse==0.5.2",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+exclude = [
+    "venv",
+    "*/migrations/*",
+    "manage.py",
+    ".git",
+]
+
+[tool.ruff.lint]
+# E/W = pycodestyle, F = pyflakes, I = isort, UP = pyupgrade
+select = ["E", "F", "W", "I", "UP"]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "W191",  # indentation contains tabs
+    "E111",  # indentation is not a multiple of four
+    "E114",  # indentation is not a multiple of four (comment)
+    "E117",  # over-indented
+]
+
+[tool.ruff.lint.per-file-ignores]
+# __init__.py files are used to re-export names from submodules — F401 is intentional
+"**/views/__init__.py" = ["F401"]
+# settings import jazzmin — F401 is intentional
+"setup/settings.py" = ["F401"]
+# In tests, variables are often assigned just to create DB objects (side-effects) — F841 is intentional
+"**/tests/**/*.py" = ["F841"]
+"**/tests*.py" = ["F841"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["apps", "setup", "utils", "tasks"]
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "tab"
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+exclude = [
+    "venv/",
+    ".*/migrations/.*",
+    "manage\\.py",
+]

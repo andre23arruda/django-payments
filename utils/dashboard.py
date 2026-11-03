@@ -6,7 +6,6 @@ from typing import Any
 from django.contrib.auth.models import User
 from django.db.models import Count, Q, Sum
 from django.utils import timezone
-
 from payments.models import InputOutput
 
 MONTH_NAMES_PT = {
@@ -167,9 +166,7 @@ def get_dashboard_stats(user: User | None = None) -> dict[str, Any]:
 	else:
 		all_months = _generate_continuous_months(default_start_ym, end_ym)
 
-	month_labels = [
-		f'{MONTH_NAMES_PT.get(int(m.split("-")[1]), m)}/{m.split("-")[0][2:]}' for m in all_months
-	]
+	month_labels = [f'{MONTH_NAMES_PT.get(int(m.split("-")[1]), m)}/{m.split("-")[0][2:]}' for m in all_months]
 	month_entradas = [round(entradas_por_mes.get(m, 0.0), 2) for m in all_months]
 	month_saidas = [round(saidas_por_mes.get(m, 0.0), 2) for m in all_months]
 	month_saldo = [round(e - s, 2) for e, s in zip(month_entradas, month_saidas)]

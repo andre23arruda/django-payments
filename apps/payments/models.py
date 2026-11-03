@@ -16,7 +16,9 @@ class InputOutput(models.Model):
 	type = models.CharField(max_length=10, choices=INPUT_OUTPUT, default='Entrada', verbose_name='Entrada e Saída')
 	value = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Valor (R$)')
 	obs = models.TextField(verbose_name='Observação')
-	created_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, blank=True, null=True, verbose_name='Criado por')
+	created_by = models.ForeignKey(
+		'auth.User', on_delete=models.SET_NULL, blank=True, null=True, verbose_name='Criado por'
+	)
 
 	class Meta:
 		verbose_name = 'Entrada/Saída'
@@ -36,7 +38,7 @@ class InputOutput(models.Model):
 	render_obs.short_description = 'Observação'
 
 	def render_type(self):
-		component_style = f'color: white; padding: 2px; border-radius: 5px;'
+		component_style = 'color: white; padding: 2px; border-radius: 5px;'
 		if self.type == 'Entrada':
 			return mark_safe(f'<span style="background-color: {GREEN}; {component_style}">{self.type}</span>')
 		return mark_safe(f'<span style="background-color: {RED}; {component_style}">{self.type}</span>')
