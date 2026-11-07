@@ -31,11 +31,11 @@ def get_period(date_str: str) -> str:
 @admin.register(InputOutput)
 class InputOutputRegister(admin.ModelAdmin):
 	date_hierarchy = 'date'
-	list_display = ('date', 'value', 'render_type', 'render_obs')
-	list_display_links = ('date', 'value')
+	list_display = ['date', 'render_obs', 'value', 'render_type']
+	list_display_links = ['date', 'render_obs']
 	list_per_page = 30
 	list_filter = ['date', 'type']
-	search_fields = ('obs',)
+	search_fields = ['obs']
 
 	# def changelist_view(self, request, extra_context=None):
 	# 	query_params = request.GET
