@@ -6,7 +6,7 @@ JAZZMIN_SETTINGS = {
 	'login_logo': 'images/favicon-login.png',
 	'login_logo_dark': None,
 	'site_logo_classes': 'img-circle',
-	'site_icon': None,
+	'site_icon': 'images/favicon.png',
 	'welcome_sign': 'Olá, seja bem-vindo!',
 	'see_you_later': 'Até logo!',
 	'copyright': 'ALCA Inovações Tecnológicas',
