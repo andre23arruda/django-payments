@@ -1,23 +1,215 @@
 {% extends 'base.html' %}
-
 {% load static %}
 
 {% block favicon %}
     <link rel="shortcut icon" href="{% static 'images/error.ico' %}" />
+    <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}" />
 {% endblock %}
 
-{% block title %}404 Error{% endblock %}
+{% block title %}404 — Página não encontrada | Fluxo de Caixa{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'vendor/fontawesome-free/css/all.min.css' %}">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.75);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --primary-blue: #3b82f6;
+            --primary-blue-hover: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Red Hat Display', sans-serif;
+            background-color: var(--bg-dark);
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.16), transparent 38%),
+                radial-gradient(circle at 80% 75%, rgba(245, 158, 11, 0.12), transparent 38%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        h1, h2, .brand-title {
+            font-family: 'Oswald', sans-serif;
+            letter-spacing: 0.02em;
+        }
+
+        .landing-nav {
+            padding: 1.25rem 0;
+            border-bottom: 1px solid var(--border-subtle);
+            backdrop-filter: blur(10px);
+        }
+
+        .brand-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 1.35rem;
+            font-weight: 600;
+        }
+
+        .brand-link:hover {
+            color: #ffffff;
+        }
+
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .error-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1rem;
+        }
+
+        .error-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 3rem 2.25rem;
+            max-width: 520px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(12px);
+        }
+
+        .error-icon-badge {
+            width: 68px;
+            height: 68px;
+            border-radius: 16px;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #fbbf24;
+            font-size: 1.85rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .error-code {
+            font-size: clamp(3.5rem, 8vw, 5rem);
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #60a5fa 0%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .error-title {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .error-desc {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .btn-cta {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-hover) 100%);
+            color: #ffffff;
+            font-weight: 700;
+            padding: 0.7rem 1.4rem;
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-cta:hover {
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 26px rgba(59, 130, 246, 0.42);
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            font-weight: 600;
+            padding: 0.7rem 1.35rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-subtle);
+            transition: background 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .landing-footer {
+            padding: 1.5rem 0;
+            border-top: 1px solid var(--border-subtle);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+    </style>
+{% endblock %}
 
 {% block content %}
-    <div class="d-flex align-items-center justify-content-center vh-100">
-        <div class="text-center">
-            <h1 class="display-1 fw-bold">404</h1>
-            <p class="fs-3"> <span class="text-danger">Opps!</span> Not found.</p>
-            <p class="lead">
-                The requested resource was not found on this server.
-            </p>
-
-            <a href="{% url 'index' %}" class="btn btn-primary">Go Home</a>
+    <header class="landing-nav">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="{% url 'index' %}" class="brand-link">
+                <img src="{% static 'images/favicon.png' %}" alt="Logo Fluxo de Caixa" class="brand-logo">
+                <span class="brand-title">Fluxo de Caixa</span>
+            </a>
+            <a href="{% url 'admin:index' %}" class="btn-cta py-2 px-3" style="font-size: 0.9rem;">
+                <i class="fas fa-sign-in-alt"></i> Acessar Painel
+            </a>
         </div>
-    </div>
+    </header>
+
+    <main class="error-wrapper">
+        <div class="error-card">
+            <div class="error-icon-badge">
+                <i class="fas fa-compass"></i>
+            </div>
+            <div class="error-code">404</div>
+            <h1 class="error-title">Página não encontrada</h1>
+            <p class="error-desc">
+                O endereço que você tentou acessar não existe ou foi movido. Verifique a URL ou retorne para o início.
+            </p>
+            <div class="d-flex justify-content-center flex-wrap gap-3">
+                <a href="{% url 'index' %}" class="btn-cta">
+                    <i class="fas fa-home"></i> Voltar ao Início
+                </a>
+                <a href="{% url 'admin:index' %}" class="btn-ghost">
+                    <i class="fas fa-wallet"></i> Ir para o Dashboard
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="landing-footer">
+        <div class="container">
+            <strong>Fluxo de Caixa</strong> &copy; {% now "Y" %} — ALCA Inovações Tecnológicas.
+        </div>
+    </footer>
 {% endblock %}

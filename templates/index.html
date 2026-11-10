@@ -1,70 +1,475 @@
 {% extends 'base.html' %}
-
 {% load static %}
 
 {% block favicon %}
-    <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" />
+    <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" type="image/png" />
+    <link rel="icon" href="{% static 'images/favicon.png' %}" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}" />
 {% endblock %}
 
+{% block title %}Fluxo de Caixa — Gestão Financeira{% endblock %}
+
 {% block style %}
+    <link rel="stylesheet" href="{% static 'vendor/fontawesome-free/css/all.min.css' %}">
     <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.75);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --primary-blue: #3b82f6;
+            --primary-blue-hover: #2563eb;
+            --emerald: #10b981;
+            --rose: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
         body {
-            background-color: #000;
-        }
-        .eyes {
-            width: 100%;
-            height: 800px;
+            font-family: 'Red Hat Display', sans-serif;
+            background-color: var(--bg-dark);
+            background-image:
+                radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.16), transparent 35%),
+                radial-gradient(circle at 85% 25%, rgba(16, 185, 129, 0.12), transparent 35%);
+            color: var(--text-main);
+            min-height: 100vh;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: row;
-            column-gap: 20px;
+            flex-direction: column;
+            overflow-x: hidden;
         }
 
-        .eye {
-            width: 100px;
-            height: 120px;
-            border-radius: 100%;
-            background-color: #fff;
+        h1, h2, h3, .brand-title {
+            font-family: 'Oswald', sans-serif;
+            letter-spacing: 0.02em;
+        }
+
+        /* Navbar */
+        .landing-nav {
+            padding: 1.25rem 0;
+            border-bottom: 1px solid var(--border-subtle);
+            backdrop-filter: blur(10px);
+        }
+
+        .brand-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 1.35rem;
+            font-weight: 600;
+        }
+
+        .brand-link:hover {
+            color: #ffffff;
+        }
+
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        /* Buttons */
+        .btn-cta {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-hover) 100%);
+            color: #ffffff;
+            font-weight: 700;
+            padding: 0.7rem 1.5rem;
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-cta:hover {
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 26px rgba(59, 130, 246, 0.42);
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            font-weight: 600;
+            padding: 0.7rem 1.35rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-subtle);
+            transition: background 0.2s ease, border-color 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        /* Hero */
+        .hero-section {
+            padding: 4.5rem 0 3.5rem;
+            flex: 1;
             display: flex;
-            justify-content: center;
             align-items: center;
         }
 
-        .pupil {
-            width: 40px;
-            height: 40px;
-            border-radius: 101px;
-            background-color: #000;
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            margin-bottom: 1.25rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2.3rem, 4.5vw, 3.5rem);
+            font-weight: 700;
+            line-height: 1.12;
+            margin-bottom: 1.15rem;
+        }
+
+        .text-gradient {
+            background: linear-gradient(90deg, #60a5fa 0%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.08rem;
+            color: var(--text-muted);
+            line-height: 1.65;
+            margin-bottom: 2rem;
+            max-width: 540px;
+        }
+
+        /* Preview Mock Card */
+        .preview-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            padding: 1.5rem;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(12px);
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .preview-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .preview-dots span {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .mini-kpi {
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 0.9rem 1rem;
+            height: 100%;
+        }
+
+        .mini-kpi-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            font-weight: 700;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .mini-kpi-value {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .mini-chart-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 0.6rem;
+            height: 130px;
+            padding: 1rem 0.75rem 0.25rem;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+
+        .bar-pair {
+            flex: 1;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 4px;
+            height: 100%;
+        }
+
+        .bar-in {
+            width: 12px;
+            background: linear-gradient(180deg, #34d399 0%, #059669 100%);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .bar-out {
+            width: 12px;
+            background: linear-gradient(180deg, #f87171 0%, #dc2626 100%);
+            border-radius: 4px 4px 0 0;
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 3rem 0 4rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 1.5rem;
+            height: 100%;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(59, 130, 246, 0.35);
+        }
+
+        .feature-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-icon.blue {
+            background: rgba(59, 130, 246, 0.16);
+            color: #60a5fa;
+        }
+
+        .feature-icon.emerald {
+            background: rgba(16, 185, 129, 0.16);
+            color: #34d399;
+        }
+
+        .feature-icon.purple {
+            background: rgba(139, 92, 246, 0.16);
+            color: #c084fc;
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        .landing-footer {
+            padding: 1.5rem 0;
+            border-top: 1px solid var(--border-subtle);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
         }
     </style>
 {% endblock %}
 
-{% block title %}Bem-Vindo!{% endblock %}
-
 {% block content %}
-    <main class="p-5 text-center w-100" style="position: absolute; top: 0; left: 0; min-height: 100vh;">
-        <div class="eyes">
-            <div class="eye">
-                <div class="pupil"></div>
-            </div>
-            <div class="eye">
-                <div class="pupil"></div>
+    <!-- Navbar -->
+    <header class="landing-nav">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="{% url 'index' %}" class="brand-link">
+                <img src="{% static 'images/favicon.png' %}" alt="Logo Fluxo de Caixa" class="brand-logo">
+                <span class="brand-title">Fluxo de Caixa</span>
+            </a>
+            <a href="{% url 'admin:index' %}" class="btn-cta py-2 px-3" style="font-size: 0.9rem;">
+                <i class="fas fa-sign-in-alt"></i> Acessar Painel
+            </a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="hero-section">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <div class="hero-badge">
+                        <i class="fas fa-chart-line"></i> Gestão Financeira Simplificada
+                    </div>
+                    <h1 class="hero-title">
+                        Controle seu <span class="text-gradient">Fluxo de Caixa</span> com clareza e rapidez.
+                    </h1>
+                    <p class="hero-subtitle">
+                        Registre entradas e saídas, acompanhe o saldo em caixa em tempo real e visualize a evolução financeira através de um dashboard analítico completo.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="{% url 'admin:index' %}" class="btn-cta">
+                            <i class="fas fa-wallet"></i> Entrar no Dashboard
+                        </a>
+                        <a href="#recursos" class="btn-ghost">
+                            Conhecer Recursos <i class="fas fa-arrow-down ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Dashboard Visual Mockup -->
+                <div class="col-lg-6">
+                    <div class="preview-card">
+                        <div class="preview-header">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fas fa-wallet text-primary"></i>
+                                <span class="fw-bold" style="font-family: 'Oswald', sans-serif;">Visão Geral • Fluxo de Caixa</span>
+                            </div>
+                            <div class="preview-dots">
+                                <span style="background: #ef4444;"></span>
+                                <span style="background: #f59e0b;"></span>
+                                <span style="background: #10b981;"></span>
+                            </div>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <div class="mini-kpi">
+                                    <span class="mini-kpi-label">Entradas</span>
+                                    <div class="mini-kpi-value" style="color: #34d399;">+ R$ 12.450</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="mini-kpi">
+                                    <span class="mini-kpi-label">Saídas</span>
+                                    <div class="mini-kpi-value" style="color: #f87171;">- R$ 4.320</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="mini-kpi">
+                                    <span class="mini-kpi-label">Saldo Líquido</span>
+                                    <div class="mini-kpi-value" style="color: #60a5fa;">R$ 8.130</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mini-chart-bars" aria-hidden="true">
+                            <div class="bar-pair">
+                                <div class="bar-in" style="height: 55%;"></div>
+                                <div class="bar-out" style="height: 30%;"></div>
+                            </div>
+                            <div class="bar-pair">
+                                <div class="bar-in" style="height: 70%;"></div>
+                                <div class="bar-out" style="height: 40%;"></div>
+                            </div>
+                            <div class="bar-pair">
+                                <div class="bar-in" style="height: 62%;"></div>
+                                <div class="bar-out" style="height: 45%;"></div>
+                            </div>
+                            <div class="bar-pair">
+                                <div class="bar-in" style="height: 85%;"></div>
+                                <div class="bar-out" style="height: 35%;"></div>
+                            </div>
+                            <div class="bar-pair">
+                                <div class="bar-in" style="height: 78%;"></div>
+                                <div class="bar-out" style="height: 28%;"></div>
+                            </div>
+                            <div class="bar-pair">
+                                <div class="bar-in" style="height: 95%;"></div>
+                                <div class="bar-out" style="height: 38%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-1" style="font-size: 0.8rem; color: var(--text-muted);">
+                            <span><i class="fas fa-shield-alt text-primary me-1"></i> Modo privacidade integrado (`****`)</span>
+                            <span style="color: #34d399; font-weight: 700;"><i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>Saldo Positivo</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 
-    <script>
-        // get both pupils
-        const pupils = document.querySelectorAll(".eye .pupil");
-        window.addEventListener("mousemove", (e) => {
-            pupils.forEach((pupil) => {
-                // get x and y postion of cursor
-                var rect = pupil.getBoundingClientRect();
-                var x = (e.pageX - rect.left) / 30 + "px";
-                var y = (e.pageY - rect.top) / 30 + "px";
-                pupil.style.transform = "translate3d(" + x + "," + y + ", 0px)";
-            });
-        });
-    </script>
+    <!-- Features Section -->
+    <section id="recursos" class="features-section">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon emerald">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Entradas e Saídas</h3>
+                        <p class="feature-desc">
+                            Cadastre movimentações financeiras de forma prática, com filtros rápidos por período, tipo de lançamento e busca por observações.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon blue">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <h3 class="feature-title">Dashboard Analítico</h3>
+                        <p class="feature-desc">
+                            Acompanhe gráficos interativos de evolução mensal ou diária, proporção entre receitas e despesas, margem líquida e ticket médio.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon purple">
+                            <i class="fas fa-eye-slash"></i>
+                        </div>
+                        <h3 class="feature-title">Privacidade & Mobile</h3>
+                        <p class="feature-desc">
+                            Valores ocultos por padrão para maior segurança ao abrir o app em público e interface responsiva otimizada para celular e computador.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <div class="container">
+            <strong>Fluxo de Caixa</strong> &copy; {% now "Y" %} — ALCA Inovações Tecnológicas.
+        </div>
+    </footer>
 {% endblock %}
