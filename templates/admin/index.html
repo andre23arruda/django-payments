@@ -31,6 +31,9 @@
             <h2>
                 <i class="fas fa-wallet text-primary mr-2"></i>
                 {% trans 'Fluxo de Caixa' %}
+                <button type="button" id="kpi-visibility-toggle" class="kpi-visibility-btn" title="Mostrar valores" aria-label="Mostrar ou ocultar valores">
+                    <i class="fas fa-eye" id="kpi-visibility-icon"></i>
+                </button>
             </h2>
             <div class="dashboard-subtitle">
                 Visão consolidada de <strong>Entradas</strong>, <strong>Saídas</strong> e <strong>Saldo Líquido</strong>
@@ -60,14 +63,15 @@
                         <i class="fas fa-arrow-up"></i>
                     </div>
                 </div>
-                <div class="kpi-value text-emerald" id="kpi-entradas-value">
-                    {{ metrics.summary.total_entradas_fmt }}
+                <div class="kpi-value text-emerald kpi-sensitive" id="kpi-entradas-value"
+                    data-real-value="{{ metrics.summary.total_entradas_fmt }}">
+                    ****
                 </div>
                 <div class="kpi-footer" id="kpi-entradas-footer">
                     <i class="fas fa-check-circle text-success"></i>
                     <span>
-                        {{ metrics.summary.qtd_entradas }} entrada(s) •
-                        Mês: {{ metrics.summary.mes_entradas_fmt }}
+                        <span class="kpi-sensitive" data-real-value="{{ metrics.summary.qtd_entradas }}">****</span> entrada(s) •
+                        Mês: <span class="kpi-sensitive" data-real-value="{{ metrics.summary.mes_entradas_fmt }}">****</span>
                     </span>
                 </div>
             </div>
@@ -82,12 +86,16 @@
                         <i class="fas fa-arrow-down"></i>
                     </div>
                 </div>
-                <div class="kpi-value text-rose" id="kpi-saidas-value">
-                    {{ metrics.summary.total_saidas_fmt }}
+                <div class="kpi-value text-rose kpi-sensitive" id="kpi-saidas-value"
+                    data-real-value="{{ metrics.summary.total_saidas_fmt }}">
+                    ****
                 </div>
                 <div class="kpi-footer" id="kpi-saidas-footer">
                     <i class="fas fa-arrow-circle-down text-danger"></i>
-                    <span>{{ metrics.summary.qtd_saidas }} saída(s) • Mês: {{ metrics.summary.mes_saidas_fmt }}</span>
+                    <span>
+                        <span class="kpi-sensitive" data-real-value="{{ metrics.summary.qtd_saidas }}">****</span> saída(s) •
+                        Mês: <span class="kpi-sensitive" data-real-value="{{ metrics.summary.mes_saidas_fmt }}">****</span>
+                    </span>
                 </div>
             </div>
         </div>
@@ -101,9 +109,9 @@
                         <i class="fas fa-scale-balanced fas fa-balance-scale"></i>
                     </div>
                 </div>
-                <div class="kpi-value {% if metrics.summary.saldo_positivo %}text-emerald{% else %}text-rose{% endif %}"
-                    id="kpi-saldo-value">
-                    {{ metrics.summary.saldo_liquido_fmt }}
+                <div class="kpi-value {% if metrics.summary.saldo_positivo %}text-emerald{% else %}text-rose{% endif %} kpi-sensitive"
+                    id="kpi-saldo-value" data-real-value="{{ metrics.summary.saldo_liquido_fmt }}">
+                    ****
                 </div>
                 <div class="kpi-footer" id="kpi-saldo-footer">
                     <span class="pulse-dot {% if not metrics.summary.saldo_positivo %}pulse-dot-danger{% endif %}"
@@ -112,8 +120,8 @@
                         class="{% if metrics.summary.saldo_positivo %}text-success{% else %}text-danger{% endif %} font-weight-bold">
                         {% if metrics.summary.saldo_positivo %}Saldo Positivo{% else %}Saldo Negativo{% endif %}
                     </span>
-                    <span class="text-muted ml-1" id="kpi-saldo-margin">({{ metrics.summary.margem_liquida }}%
-                        margem)</span>
+                    <span class="text-muted ml-1 kpi-sensitive" id="kpi-saldo-margin"
+                        data-real-value="({{ metrics.summary.margem_liquida }}% margem)" data-mask-value="(****)">(****)</span>
                 </div>
             </div>
         </div>
@@ -127,13 +135,13 @@
                         <i class="fas fa-calendar-alt"></i>
                     </div>
                 </div>
-                <div
-                    class="kpi-value {% if metrics.summary.mes_saldo_positivo %}text-emerald{% else %}text-rose{% endif %}">
-                    {{ metrics.summary.mes_saldo_fmt }}
+                <div class="kpi-value {% if metrics.summary.mes_saldo_positivo %}text-emerald{% else %}text-rose{% endif %} kpi-sensitive"
+                    id="kpi-mes-value" data-real-value="{{ metrics.summary.mes_saldo_fmt }}">
+                    ****
                 </div>
                 <div class="kpi-footer">
                     <span class="text-muted">
-                        {{ metrics.summary.mes_lancamentos }} mov. no mês ({{ metrics.summary.total_lancamentos }}
+                        <span class="kpi-sensitive" data-real-value="{{ metrics.summary.mes_lancamentos }}">****</span> mov. no mês (<span class="kpi-sensitive" data-real-value="{{ metrics.summary.total_lancamentos }}">****</span>
                         total)
                     </span>
                 </div>
@@ -212,32 +220,36 @@
                     <li class="donut-stat-item">
                         <span class="donut-stat-label">
                             <span class="donut-dot" style="background-color: #10b981;"></span>
-                            Entradas ({{ metrics.summary.perc_entradas }}%)
+                            Entradas (<span class="kpi-sensitive" data-real-value="{{ metrics.summary.perc_entradas }}%" data-mask-value="****%">****%</span>)
                         </span>
-                        <span class="donut-stat-value text-emerald" id="donut-stat-entradas">
-                            {{ metrics.summary.total_entradas_fmt }}
+                        <span class="donut-stat-value text-emerald kpi-sensitive" id="donut-stat-entradas"
+                            data-real-value="{{ metrics.summary.total_entradas_fmt }}">
+                            ****
                         </span>
                     </li>
                     <li class="donut-stat-item">
                         <span class="donut-stat-label">
                             <span class="donut-dot" style="background-color: #ef4444;"></span>
-                            Saídas ({{metrics.summary.perc_saidas }}%)
+                            Saídas (<span class="kpi-sensitive" data-real-value="{{ metrics.summary.perc_saidas }}%" data-mask-value="****%">****%</span>)
                         </span>
-                        <span class="donut-stat-value text-rose" id="donut-stat-saidas">
-                            {{ metrics.summary.total_saidas_fmt }}
+                        <span class="donut-stat-value text-rose kpi-sensitive" id="donut-stat-saidas"
+                            data-real-value="{{ metrics.summary.total_saidas_fmt }}">
+                            ****
                         </span>
                     </li>
                     <li class="donut-stat-item">
                         <span class="donut-stat-label">
                             <span class="donut-dot" style="background-color: #3b82f6;"></span>Ticket Médio (Entrada)
                         </span>
-                        <span class="donut-stat-value">{{ metrics.summary.ticket_medio_entrada_fmt }}</span>
+                        <span class="donut-stat-value kpi-sensitive"
+                            data-real-value="{{ metrics.summary.ticket_medio_entrada_fmt }}">****</span>
                     </li>
                     <li class="donut-stat-item">
                         <span class="donut-stat-label">
                             <span class="donut-dot" style="background-color: #f97316;"></span>Ticket Médio (Saída)
                         </span>
-                        <span class="donut-stat-value">{{ metrics.summary.ticket_medio_saida_fmt }}</span>
+                        <span class="donut-stat-value kpi-sensitive"
+                            data-real-value="{{ metrics.summary.ticket_medio_saida_fmt }}">****</span>
                     </li>
                 </ul>
             </div>
@@ -255,7 +267,7 @@
                     </h4>
                     <a href="{% url 'admin:payments_inputoutput_changelist' %}" class="btn btn-xs btn-outline-secondary"
                         style="border-radius: 6px; font-weight: 600;">
-                        Ver todas ({{ metrics.summary.total_lancamentos }}) <i class="fas fa-arrow-right ml-1"></i>
+                        Ver todas (<span class="kpi-sensitive" data-real-value="{{ metrics.summary.total_lancamentos }}">****</span>) <i class="fas fa-arrow-right ml-1"></i>
                     </a>
                 </div>
                 {% if metrics.recent_records %}
@@ -291,7 +303,8 @@
                                 </td>
                                 <td
                                     class="align-middle text-right font-weight-bold {% if item.is_entrada %}text-emerald{% else %}text-rose{% endif %}">
-                                    {% if item.is_entrada %}+{% else %}-{% endif %} {{ item.value_formatted }}
+                                    {% if item.is_entrada %}+{% else %}-{% endif %}
+                                    <span class="kpi-sensitive" data-real-value="{{ item.value_formatted }}">****</span>
                                 </td>
                             </tr>
                             {% endfor %}

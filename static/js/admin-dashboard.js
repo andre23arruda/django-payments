@@ -46,6 +46,43 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentDonutMetric = 'values'; // 'values' | 'counts'
     let donutChart = null;
 
+    // State for KPI visibility (always starts hidden as ****)
+    let isKpiVisible = false;
+
+    function applyKpiVisibility() {
+        const sensitiveEls = document.querySelectorAll('.kpi-sensitive');
+        sensitiveEls.forEach(function (el) {
+            const realVal = el.getAttribute('data-real-value') || '';
+            const maskVal = el.getAttribute('data-mask-value') || '****';
+            el.textContent = isKpiVisible ? realVal : maskVal;
+        });
+
+        const icon = document.getElementById('kpi-visibility-icon');
+        const btn = document.getElementById('kpi-visibility-toggle');
+        if (icon) {
+            icon.classList.toggle('fa-eye', !isKpiVisible);
+            icon.classList.toggle('fa-eye-slash', isKpiVisible);
+        }
+        if (btn) {
+            btn.setAttribute('title', isKpiVisible ? 'Ocultar valores' : 'Mostrar valores');
+        }
+
+        if (timelineChart) {
+            timelineChart.update();
+        }
+        if (donutChart) {
+            donutChart.update();
+        }
+    }
+
+    const visibilityBtn = document.getElementById('kpi-visibility-toggle');
+    if (visibilityBtn) {
+        visibilityBtn.addEventListener('click', function () {
+            isKpiVisible = !isKpiVisible;
+            applyKpiVisibility();
+        });
+    }
+
     // Helper: Get filtered series according to currentView and period
     function getFilteredData() {
         const source = currentView === 'monthly'
@@ -185,11 +222,23 @@ document.addEventListener('DOMContentLoaded', function () {
         const kpiSaldoDot = document.getElementById('kpi-saldo-dot');
         const kpiSaldoStatus = document.getElementById('kpi-saldo-status');
         const kpiSaldoMargin = document.getElementById('kpi-saldo-margin');
+        const donutStatEntradas = document.getElementById('donut-stat-entradas');
+        const donutStatSaidas = document.getElementById('donut-stat-saidas');
 
-        if (kpiEntradasVal) kpiEntradasVal.textContent = formatBRL(sumEntradas);
-        if (kpiSaidasVal) kpiSaidasVal.textContent = formatBRL(sumSaidas);
+        if (kpiEntradasVal) {
+            kpiEntradasVal.setAttribute('data-real-value', formatBRL(sumEntradas));
+        }
+        if (kpiSaidasVal) {
+            kpiSaidasVal.setAttribute('data-real-value', formatBRL(sumSaidas));
+        }
+        if (donutStatEntradas) {
+            donutStatEntradas.setAttribute('data-real-value', formatBRL(sumEntradas));
+        }
+        if (donutStatSaidas) {
+            donutStatSaidas.setAttribute('data-real-value', formatBRL(sumSaidas));
+        }
         if (kpiSaldoVal) {
-            kpiSaldoVal.textContent = formatBRL(saldo);
+            kpiSaldoVal.setAttribute('data-real-value', formatBRL(saldo));
             kpiSaldoVal.classList.toggle('text-emerald', isPositivo);
             kpiSaldoVal.classList.toggle('text-rose', !isPositivo);
         }
@@ -202,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function () {
             kpiSaldoStatus.classList.toggle('text-danger', !isPositivo);
         }
         if (kpiSaldoMargin) {
-            kpiSaldoMargin.textContent = `(${margem}% margem)`;
+            kpiSaldoMargin.setAttribute('data-real-value', `(${margem}% margem)`);
         }
 
         // Update Donut Chart with period values/counts
@@ -210,8 +259,9 @@ document.addEventListener('DOMContentLoaded', function () {
             donutChart.data.datasets[0].data = currentDonutMetric === 'values'
                 ? [Number(sumEntradas.toFixed(2)), Number(sumSaidas.toFixed(2))]
                 : [sumQtdIn, sumQtdOut];
-            donutChart.update();
         }
+
+        applyKpiVisibility();
     }
 
     // Initialize Main Cash Flow Chart
@@ -257,6 +307,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         usePointStyle: true,
                         callbacks: {
                             label: function (context) {
+                                if (!isKpiVisible) {
+                                    return ` ${context.dataset.label}: ****`;
+                                }
                                 return ` ${context.dataset.label}: ${formatBRL(context.parsed.y)}`;
                             },
                         },
@@ -288,7 +341,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 family: 'Oswald, sans-serif',
                             },
                             callback: function (value) {
-                                return formatBRL(value);
+                                return isKpiVisible ? formatBRL(value) : '****';
                             },
                         },
                     },
@@ -351,6 +404,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         padding: 10,
                         callbacks: {
                             label: function (context) {
+                                if (!isKpiVisible) {
+                                    return ` ${context.label}: ****`;
+                                }
                                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                 const val = context.parsed;
                                 const perc = total > 0 ? ((val / total) * 100).toFixed(1) : '0.0';
