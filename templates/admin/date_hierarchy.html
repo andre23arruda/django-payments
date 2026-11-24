@@ -1,0 +1,27 @@
+{% if show %}
+<div class="col-12 xfull mb-3 d-flex align-items-center flex-wrap" style="gap: 0.5rem;">
+    {% if back %}
+        <a href="{{ back.link }}" class="btn btn-sm btn-secondary">
+            <i class="fas fa-chevron-left mr-1"></i> {{ back.title }}
+        </a>
+    {% endif %}
+
+    {% if choices %}
+        <div class="d-inline-flex align-items-center" style="gap: 0.4rem;">
+            <select
+                class="form-control form-control-sm"
+                style="width: auto; min-width: 190px; border-radius: 6px; cursor: pointer;"
+                onchange="if (this.value) window.location.href = this.value;"
+                aria-label="Filtrar por período"
+            >
+                <option value="">Selecione uma data</option>
+                {% for choice in choices %}
+                    <option value="{{ choice.link }}" {% if not choice.link %}selected disabled{% endif %}>
+                        {{ choice.title }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    {% endif %}
+</div>
+{% endif %}

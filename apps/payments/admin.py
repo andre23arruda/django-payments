@@ -1,3 +1,4 @@
+import csv
 import datetime
 
 from django.conf.locale.en import formats as en
@@ -16,13 +17,15 @@ en.DATETIME_FORMAT = 'H:i:s - d/m/Y'
 @admin.action(description='Exportar CSV')
 def export_csv(modeladmin, request, queryset):
 	now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-	queryset = queryset.order_by('-date')
-	csv_data = 'data,obs,valor,tipo' + '\n'
-	for row in queryset:
-		csv_data += f'{row.date},{row.obs},{row.value},{row.type}' + '\n'
-
-	response = HttpResponse(csv_data, content_type='text/csv')
+	response = HttpResponse(content_type='text/csv; charset=utf-8')
 	response['Content-Disposition'] = f'attachment; filename="relatorio-{now}.csv"'
+
+	writer = csv.writer(response)
+	writer.writerow(['data', 'obs', 'valor', 'tipo'])
+
+	for row in queryset.order_by('-date'):
+		writer.writerow([row.date, row.obs, row.value, row.type])
+
 	return response
 
 
